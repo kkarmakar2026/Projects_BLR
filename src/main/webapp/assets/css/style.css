@@ -1,0 +1,51 @@
+/* src/main/webapp/assets/css/style.css */
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7fb;
+  margin: 0;
+  color: #222;
+}
+.container {
+  max-width: 800px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+h1, h2, h3, h4 { margin-top: 0; }
+.btn {
+  display: inline-block;
+  background: #3b82f6;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 4px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+.btn:hover { background: #2563eb; }
+.btn-secondary {
+  background: #64748b;
+}
+.alert { padding: 10px; border-radius: 4px; margin-bottom: 12px; }
+.alert-error { background: #fee2e2; color: #991b1b; }
+.alert-success { background: #dcfce7; color: #14532d; }
+.list { list-style: none; padding-left: 0; }
+.list li { margin-bottom: 10px; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; }
+.question { margin-bottom: 10px; }
+.correct { background: #dcfce7; }
+.card {
+  display: inline-block;
+  margin-right: 10px;
+  background: #f1f5f9;
+  padding: 10px 16px;
+  border-radius: 6px;
+}
+label { display: block; margin: 8px 0 4px; }
+input[type=text], input[type=password], input[type=email], textarea, select {
+  width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px;
+}
+hr { border: none; border-top: 1px solid #e5e7eb; margin: 16px 0; }
