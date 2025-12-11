@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+
+    <!-- MySQL DataSource for Quiz Portal -->
+   <Resource name="jdbc/QuizDB"
+          auth="Container"
+          type="javax.sql.DataSource"
+          driverClassName="com.mysql.cj.jdbc.Driver"
+          url="jdbc:mysql://localhost:3306/quiz_portal"
+          username="root"
+          password="yourpassword"
+          maxTotal="20"
+          maxIdle="10"
+          maxWaitMillis="-1"/>
+
+              
+</Context>

@@ -1,0 +1,92 @@
+:root {
+    /* Color Palette extracted from your Logo */
+    --qp-dark-bg: #0d1b2a;      /* Deep Navy Background */
+    --qp-card-bg: #1b263b;      /* Slightly lighter for cards */
+    --qp-neon-cyan: #00d4ff;    /* The swirls */
+    --qp-neon-orange: #ff9100;  /* The Q stem */
+    --qp-text-light: #e0e1dd;
+}
+
+body {
+    background-color: var(--qp-dark-bg);
+    color: var(--qp-text-light);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navbar Customization */
+.navbar {
+    background-color: rgba(13, 27, 42, 0.95) !important; /* Semi-transparent dark */
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.nav-link {
+    color: var(--qp-text-light) !important;
+    transition: 0.3s;
+}
+
+.nav-link:hover {
+    color: var(--qp-neon-cyan) !important;
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 80px 0;
+    background: radial-gradient(circle at center, #1b263b 0%, #0d1b2a 70%);
+}
+
+.hero-title span {
+    color: var(--qp-neon-cyan);
+}
+
+/* Custom Buttons */
+.btn-primary-custom {
+    background-color: transparent;
+    border: 2px solid var(--qp-neon-cyan);
+    color: var(--qp-neon-cyan);
+    font-weight: bold;
+    border-radius: 30px;
+    padding: 10px 30px;
+    transition: 0.3s;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--qp-neon-cyan);
+    color: var(--qp-dark-bg);
+    box-shadow: 0 0 15px var(--qp-neon-cyan);
+}
+
+.btn-accent-custom {
+    background-color: var(--qp-neon-orange);
+    border: 2px solid var(--qp-neon-orange);
+    color: var(--qp-dark-bg);
+    font-weight: bold;
+    border-radius: 30px;
+    padding: 10px 30px;
+    transition: 0.3s;
+}
+
+.btn-accent-custom:hover {
+    background-color: transparent;
+    color: var(--qp-neon-orange);
+    box-shadow: 0 0 15px var(--qp-neon-orange);
+}
+
+/* Feature Cards */
+.feature-card {
+    background-color: var(--qp-card-bg);
+    border: none;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    border: 1px solid var(--qp-neon-cyan);
+}
+
+.footer {
+    border-top: 1px solid #333;
+    background-color: var(--qp-dark-bg);
+    color: #6c757d;
+}
