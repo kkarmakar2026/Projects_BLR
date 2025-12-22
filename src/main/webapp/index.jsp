@@ -8,14 +8,175 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     
     <style>
-        /* Override Bootstrap dropdown hover color */
-        .dropdown-item:hover, .dropdown-item:focus {
-            background-color: #00d4ff !important; 
-            color: #0d1b2a !important;
+        /* --- NAVBAR STYLES --- */
+        .custom-header {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+            color: white;
+            padding: 1rem 2rem; /* Padding for left/right spacing */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
         }
 
-        /* ---- FIX: Create Account Button Hover ---- */
+        .custom-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%; /* CHANGED: Full width to push logo to corner */
+            margin: 0;   /* CHANGED: Removed auto margin */
+        }
 
+        .brand-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .navbar-logo {
+            height: 40px; /* Maintained size */
+            width: auto;
+        }
+
+        /* --- MENU STYLES --- */
+        .custom-nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .custom-nav-menu li { position: relative; }
+
+        .custom-nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+            display: block;
+            font-size: 1rem;
+        }
+
+        .custom-nav-link:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+        }
+
+        /* --- DROPDOWN LOGIC --- */
+        .custom-dropdown { position: relative; }
+        
+        .custom-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background: #1b263b;
+            min-width: 200px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border-radius: 5px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-top: 0.5rem;
+            z-index: 1001;
+        }
+
+        .custom-dropdown-content a {
+            color: #e0e0e0;
+            padding: 12px 16px;
+            display: block;
+            text-decoration: none;
+        }
+
+        .custom-dropdown-content a:hover {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+        }
+
+        .custom-dropdown:hover .custom-dropdown-content { display: block; }
+
+        /* --- MOBILE TOGGLE --- */
+        .custom-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            transition: all 0.3s;
+        }
+
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .mobile-overlay.active { opacity: 1; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .custom-menu-toggle { display: block; }
+
+            .custom-nav-menu {
+                position: fixed;
+                right: -100%;
+                top: 0;
+                height: 100vh;
+                width: 280px;
+                background: #0d1b2a;
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                gap: 0;
+                align-items: flex-start;
+                transition: right 0.3s ease;
+                overflow-y: auto;
+                z-index: 1000;
+                border-left: 1px solid rgba(0, 212, 255, 0.2);
+            }
+
+            .custom-nav-menu.active { right: 0; }
+
+            .custom-nav-menu li {
+                width: 100%;
+                border-bottom: 1px solid rgba(255,255,255,0.05);
+            }
+
+            .custom-nav-link { width: 100%; padding: 1rem; }
+
+            .custom-dropdown-content {
+                position: static;
+                display: none;
+                background: rgba(0,0,0,0.2);
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+            }
+            
+            .custom-dropdown.active .custom-dropdown-content { display: block; }
+            .mobile-overlay { display: block; pointer-events: none; }
+            .mobile-overlay.active { pointer-events: auto; }
+        }
+
+        /* --- BUTTON STYLES (Restored) --- */
         .btn-primary-custom {
             border: 2px solid #00d4ff;
             color: #00d4ff;
@@ -23,60 +184,65 @@
             font-weight: bold;
             transition: 0.3s ease-in-out;
         }
-
         .btn-primary-custom:hover {
             background-color: #00d4ff !important;
             color: #0d1b2a !important; 
-            border-color: #00d4ff !important;
         }
-
     </style>
 </head>
-<body>
+<body style="background-color: #0d1b2a; color: white;">
 
-<nav class="navbar navbar-expand-lg fixed-top" style="background-color: rgba(13, 27, 42, 0.95); border-bottom: 1px solid rgba(0, 212, 255, 0.1);">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="${pageContext.request.contextPath}/">
-        <img src="${pageContext.request.contextPath}/assets/images/logo.png" alt="Quiz Portal" height="50" class="me-2 rounded-circle">
-        <span class="fw-bold" style="letter-spacing: 1px; color: white;">QUIZ PORTAL</span>
-    </a>
+<div class="mobile-overlay" id="overlay"></div>
 
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#quizNavbar">
-      <i class="bi bi-list text-white fs-2"></i>
-    </button>
-
-    <div class="collapse navbar-collapse" id="quizNavbar">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-        <li class="nav-item"><a class="nav-link text-light" href="${pageContext.request.contextPath}/quizzes">Browse Quizzes</a></li>
+<header class="custom-header">
+    <nav class="custom-nav">
+        <a href="${pageContext.request.contextPath}/" class="brand-logo">
+            <img src="${pageContext.request.contextPath}/assets/images/logo.png" alt="Quiz Portal" class="navbar-logo">
+            <span style="letter-spacing: 1px;">QUIZ PORTAL</span>
+        </a>
         
-        <% if (request.getSession().getAttribute("USER_ID") == null) { %>
-            <li class="nav-item ms-lg-3">
-                <a class="nav-link text-light" href="${pageContext.request.contextPath}/login">Login</a>
+        <button class="custom-menu-toggle" id="menuBtn">
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </button>
+
+        <ul class="custom-nav-menu" id="menu">
+            <li>
+                <a class="custom-nav-link" href="${pageContext.request.contextPath}/quizzes">
+                    Browse Quizzes
+                </a>
             </li>
-            <li class="nav-item">
-                <a class="btn btn-sm btn-outline-light rounded-pill px-3" href="${pageContext.request.contextPath}/register">Sign Up</a>
-            </li>
-        <% } else { %>
-            <li class="nav-item ms-lg-3">
-                <a class="btn btn-sm btn-outline-danger rounded-pill px-3" href="${pageContext.request.contextPath}/logout">Logout</a>
-            </li>
-        <% } %>
-        
-        <li class="nav-item dropdown ms-lg-3">
-          <a class="nav-link dropdown-toggle text-warning" href="#" role="button" data-bs-toggle="dropdown">Admin</a>
-          <ul class="dropdown-menu dropdown-menu-end bg-dark border-secondary">
-            <% if (request.getSession().getAttribute("ADMIN_ID") == null) { %>
-                <li><a class="dropdown-item text-light" href="${pageContext.request.contextPath}/admin/login">Admin Login</a></li>
+            
+            <% if (request.getSession().getAttribute("USER_ID") == null) { %>
+                <li>
+                    <a class="custom-nav-link" href="${pageContext.request.contextPath}/login">Login</a>
+                </li>
+                <li>
+                    <a class="custom-nav-link" href="${pageContext.request.contextPath}/register">Sign Up</a>
+                </li>
             <% } else { %>
-                <li><a class="dropdown-item text-light" href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a></li>
-                <li><a class="dropdown-item text-light" href="${pageContext.request.contextPath}/admin/logout">Logout</a></li>
+                <li>
+                    <a class="custom-nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
+                </li>
             <% } %>
-          </ul>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+            
+            <li class="custom-dropdown" id="adminDropdown">
+                <a class="custom-nav-link dropdown-toggle" href="#">Admin Access</a>
+                <div class="custom-dropdown-content">
+                    <% if (request.getSession().getAttribute("ADMIN_ID") == null) { %>
+                        <a href="${pageContext.request.contextPath}/admin/login">Admin Login</a>
+                    <% } else { %>
+                        <a href="${pageContext.request.contextPath}/admin/dashboard">Dashboard</a>
+                        <a href="${pageContext.request.contextPath}/admin/logout">Logout</a>
+                    <% } %>
+                </div>
+            </li>
+        </ul>
+    </nav>
+</header>
 
 <section class="hero-section d-flex align-items-center" style="min-height: 90vh;">
     <div class="container text-center">
@@ -107,5 +273,40 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const menuBtn = document.getElementById('menuBtn');
+    const menu = document.getElementById('menu');
+    const overlay = document.getElementById('overlay');
+    const adminDropdown = document.getElementById('adminDropdown');
+
+    menuBtn.addEventListener('click', () => {
+        menu.classList.toggle('active');
+        overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+        menu.classList.remove('active');
+        overlay.classList.remove('active');
+    });
+
+    if (window.innerWidth <= 768) {
+        adminDropdown.addEventListener('click', (e) => {
+            if (e.target.closest('.custom-nav-link') && !e.target.closest('.custom-dropdown-content')) {
+                e.preventDefault();
+                adminDropdown.classList.toggle('active');
+            }
+        });
+    }
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            menu.classList.remove('active');
+            overlay.classList.remove('active');
+            adminDropdown.classList.remove('active');
+        }
+    });
+</script>
+
 </body>
 </html>

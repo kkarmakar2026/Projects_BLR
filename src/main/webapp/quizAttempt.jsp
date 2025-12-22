@@ -18,20 +18,28 @@
             background-color: #0d1b2a;
             color: #e0e1dd;
             padding-bottom: 80px;
-            padding-top: 60px;
+            padding-top: 70px; /* Reduced padding since navbar is smaller now */
+        }
+
+        /* --- LOGO STYLE (REDUCED SIZE) --- */
+        .navbar-logo {
+            max-height: 45px; /* Reduced from 70px to 45px */
+            width: auto;      
+            object-fit: contain;
+            margin-right: 10px;
         }
 
         /* TIMER STYLES */
         .timer-badge {
             position: fixed;
-            top: 80px;
+            top: 80px; /* Moved up slightly */
             right: 20px;
             background-color: rgba(13, 27, 42, 0.95);
             border: 2px solid #00d4ff;
             color: #00d4ff;
-            padding: 10px 25px;
+            padding: 8px 20px;
             border-radius: 50px;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 800;
             font-family: 'Courier New', monospace;
             box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
@@ -124,11 +132,13 @@
 </head>
 <body>
 
-<nav class="navbar navbar-dark fixed-top" style="background-color: rgba(13, 27, 42, 0.95);">
-    <div class="container">
+<nav class="navbar navbar-dark fixed-top" style="background-color: rgba(13, 27, 42, 0.95); border-bottom: 1px solid rgba(0, 212, 255, 0.1);">
+    <div class="container-fluid px-4">
         <a class="navbar-brand d-flex align-items-center" href="#">
-            <img src="${pageContext.request.contextPath}/assets/images/logo.png" height="40" class="me-2 rounded-circle">
-            <span class="fw-bold">Quiz In Progress</span>
+            <img src="${pageContext.request.contextPath}/assets/images/logo.png" 
+                 class="navbar-logo" 
+                 alt="Quiz Portal">
+            <span class="fw-bold fs-4">Quiz In Progress</span>
         </a>
     </div>
 </nav>
@@ -137,24 +147,19 @@
     <i class="bi bi-stopwatch me-2"></i><span id="timeText">--:--</span>
 </div>
 
-<div class="container mt-5 pt-4">
+<div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-lg-8">
 
             <form id="quizForm" method="post" action="${pageContext.request.contextPath}/quiz/submit">
                 
                 <%
-                    // 1. Retrieve Questions
                     List<Question> questions = (List<Question>) request.getAttribute("questions");
-                    
-                    // 2. Retrieve Quiz ID
                     Object quizIdObj = request.getAttribute("quizId");
                     Integer quizId = quizIdObj != null ? (Integer) quizIdObj : 0;
 
-                    // 3. FETCH QUIZ TIME LIMIT FROM DB
                     QuizDAO quizDAO = new QuizDAO();
                     Quiz currentQuiz = quizDAO.findById(quizId);
-                    // Default to 10 minutes if not found or set to 0
                     int timeLimitMinutes = (currentQuiz != null && currentQuiz.getTimeLimit() > 0) 
                                            ? currentQuiz.getTimeLimit() : 10;
 
@@ -203,7 +208,8 @@
                     <div class="container">
                         <div class="row justify-content-center">
                             <div class="col-lg-8 d-grid">
-                                <button type="submit" class="btn btn-primary-custom fw-bold py-2 fs-5">
+                                <button type="submit" class="btn btn-primary fw-bold py-2 fs-5" 
+                                        style="background-color: #00d4ff; border:none; color: #0d1b2a;">
                                     Submit Quiz <i class="bi bi-send-fill ms-2"></i>
                                 </button>
                             </div>
@@ -219,29 +225,23 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // 1. Get the time limit from Java variable
     const minutesSet = <%= timeLimitMinutes %>;
-    
-    // 2. Convert to seconds
     let timeLeft = minutesSet * 60; 
 
     const timerElement = document.getElementById('quizTimer');
     const timeText = document.getElementById('timeText');
     const quizForm = document.getElementById('quizForm');
 
-    // Initial Display
     updateTimerDisplay();
 
     const countdown = setInterval(() => {
         timeLeft--;
         updateTimerDisplay();
 
-        // Warning Logic
         if (timeLeft <= 60) {
             timerElement.classList.add('timer-warning');
         }
 
-        // Auto Submit Logic
         if (timeLeft <= 0) {
             clearInterval(countdown);
             timeText.innerText = "00:00";
@@ -253,11 +253,8 @@
     function updateTimerDisplay() {
         let minutes = Math.floor(timeLeft / 60);
         let seconds = timeLeft % 60;
-
-        // Formatting
         seconds = seconds < 10 ? '0' + seconds : seconds;
         minutes = minutes < 10 ? '0' + minutes : minutes;
-
         timeText.innerText = minutes + ":" + seconds;
     }
 </script>

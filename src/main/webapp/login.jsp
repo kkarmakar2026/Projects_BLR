@@ -53,6 +53,20 @@
             color: #00d4ff; /* Cyan Icon */
         }
         
+        /* Custom Button Style */
+        .btn-primary-custom {
+            background-color: #00d4ff;
+            color: #0d1b2a;
+            font-weight: bold;
+            border: none;
+            transition: 0.3s;
+        }
+        
+        .btn-primary-custom:hover {
+            background-color: #ff9100;
+            color: white;
+        }
+        
         .link-custom {
             color: #00d4ff;
             text-decoration: none;
@@ -82,8 +96,9 @@
         <div class="text-center mb-4">
             <img src="${pageContext.request.contextPath}/assets/images/logo.png" 
                  alt="Logo" 
-                 class="rounded-circle shadow-sm mb-3" 
-                 style="width: 80px; height: 80px; object-fit: cover; border: 2px solid #00d4ff;">
+                 class="mb-3" 
+                 style="height: 80px; width: auto; object-fit: contain;">
+                 
             <h3 class="fw-bold text-white">Student Login</h3>
             <p class="text-secondary small">Welcome back! Please login to continue.</p>
         </div>

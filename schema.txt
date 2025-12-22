@@ -87,3 +87,36 @@ VALUES ('admin', '$2a$10$ZWvxlM5v0/wFc6iEsKv6FOVpc5Nzx.n4NG1aruGcXtr./Io.i.0Hm',
 
 USE quiz_portal;
 ALTER TABLE quizzes ADD COLUMN time_limit INT DEFAULT 10; -- Default 10 minutes
+
+
+-- 1. Modify 'quizzes' table to add 'category' (and ensure time_limit exists)
+ALTER TABLE quizzes 
+ADD COLUMN category VARCHAR(100) DEFAULT 'General' AFTER name;
+
+-- Note: You already have time_limit in your snippet, but if it's missing, uncomment below:
+-- ALTER TABLE quizzes ADD COLUMN time_limit INT DEFAULT 10;
+
+
+-- 2. Create the 'results' table
+-- This is required because your ResultServlet and DAO are specifically looking 
+-- for a table named 'results' with 'total_marks' and 'score' as decimals.
+CREATE TABLE results (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  quiz_id INT NOT NULL,
+  score DOUBLE DEFAULT 0.0,       -- Uses DOUBLE for precise percentage calc
+  total_marks DOUBLE DEFAULT 0.0, -- Needed to calculate percentage (score / total * 100)
+  attempt_datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
+);
+
+
+
+-- Add the missing column to the attempts table
+ALTER TABLE attempts 
+ADD COLUMN total_marks DOUBLE DEFAULT 0.0 AFTER score;
+
+-- Optional: Ensure score can hold decimals if needed
+ALTER TABLE attempts MODIFY COLUMN score DOUBLE DEFAULT 0.0;

@@ -16,7 +16,6 @@ public class AdminLoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        // Forward to JSP under /admin
         req.getRequestDispatcher("/admin/adminLogin.jsp").forward(req, resp);
     }
 
@@ -27,11 +26,14 @@ public class AdminLoginServlet extends HttpServlet {
         String password = req.getParameter("password");
 
         Admin admin = adminDAO.findByUsername(username);
+        
         if (admin != null && PasswordUtil.matches(password, admin.getPasswordHash())) {
             HttpSession session = req.getSession();
             session.setAttribute("ADMIN_ID", admin.getId());
             session.setAttribute("ADMIN_NAME", admin.getName());
-            resp.sendRedirect(req.getContextPath() + "/admin/dashboard.jsp");
+            
+            // REDIRECT TO THE SERVLET MAPPING, NOT THE JSP FILE
+            resp.sendRedirect(req.getContextPath() + "/admin/dashboard");
         } else {
             req.setAttribute("error", "Invalid credentials");
             req.getRequestDispatcher("/admin/adminLogin.jsp").forward(req, resp);

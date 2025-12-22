@@ -81,6 +81,19 @@
             text-decoration: none;
         }
         .link-custom:hover { text-decoration: underline; }
+        
+        /* Button Style Restoration (Consistent with Login) */
+        .btn-primary-custom {
+            background-color: #00d4ff;
+            color: #0d1b2a;
+            font-weight: bold;
+            border: none;
+            transition: 0.3s;
+        }
+        .btn-primary-custom:hover {
+            background-color: #ff9100;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -96,8 +109,9 @@
     <div class="text-center mb-3">
         <img src="${pageContext.request.contextPath}/assets/images/logo.png" 
              alt="Logo" 
-             class="rounded-circle shadow-sm mb-2" 
-             style="width: 60px; height: 60px; object-fit: cover; border: 2px solid #00d4ff;">
+             class="mb-2" 
+             style="height: 80px; width: auto; object-fit: contain;">
+             
         <h4 class="fw-bold text-white">Create Account</h4>
     </div>
 

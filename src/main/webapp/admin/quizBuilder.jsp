@@ -4,23 +4,29 @@
 <html lang="en">
 <head>
     <title>Quiz Builder - Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/assets/css/style.css">
     <style>
-        body { padding-top: 80px; }
+        body { background-color: #0d1b2a; padding-top: 80px; }
+        .navbar-logo { max-height: 50px; width: auto; object-fit: contain; }
+        .btn-primary-custom { background-color: #00d4ff; border: none; color: #0d1b2a; font-weight: bold; }
+        .btn-primary-custom:hover { background-color: #00b8e6; }
     </style>
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg fixed-top" style="background-color: rgba(13, 27, 42, 0.95); border-bottom: 1px solid rgba(0, 212, 255, 0.1);">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center" href="${pageContext.request.contextPath}/">
-        <img src="${pageContext.request.contextPath}/assets/images/logo.png" height="40" class="me-2 rounded-circle">
-        <span class="fw-bold text-white">ADMIN PANEL</span>
-    </a>
-    <div class="ms-auto">
-        <a href="${pageContext.request.contextPath}/admin/dashboard" class="btn btn-sm btn-outline-secondary">Dashboard</a>
+  <div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <a class="navbar-brand d-flex align-items-center" href="${pageContext.request.contextPath}/">
+            <img src="${pageContext.request.contextPath}/assets/images/logo.png" class="navbar-logo me-2" alt="Logo">
+            <span class="fw-bold text-white">ADMIN PANEL</span>
+        </a>
+        <a href="${pageContext.request.contextPath}/admin/dashboard" class="btn btn-sm btn-outline-secondary text-white border-secondary">
+            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+        </a>
     </div>
   </div>
 </nav>
@@ -31,57 +37,59 @@
         Quiz quiz = (Quiz) request.getAttribute("quiz");
         List<Question> questions = (List<Question>) request.getAttribute("questions");
         
-        // ---------------------------------------------------------
-        // STATE 1: CREATE NEW QUIZ (Title & Time Limit)
-        // ---------------------------------------------------------
         if (quiz == null) {
     %>
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="card bg-dark border-secondary p-4 text-center shadow-lg">
-                    <h3 class="text-white mb-3">Start New Quiz</h3>
-                    
+                <div class="card bg-dark border-secondary p-4 shadow-lg">
+                    <h3 class="text-white mb-4 text-center">Start New Quiz</h3>
                     <form method="post" action="${pageContext.request.contextPath}/admin/quiz/builder">
                         <input type="hidden" name="action" value="createQuiz">
                         
                         <div class="mb-3">
                             <label class="form-label text-secondary small fw-bold">QUIZ TITLE</label>
-                            <input type="text" name="quizTitle" class="form-control bg-dark text-white border-secondary text-center" 
-                                   placeholder="e.g. Java Advanced" required>
+                            <input type="text" name="quizTitle" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Java Advanced" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold">CATEGORY</label>
+                            <select name="category" class="form-select bg-dark text-white border-secondary" required>
+                                <option value="" disabled selected>Select Category...</option>
+                                <option value="Programming">Programming</option>
+                                <option value="General Knowledge">General Knowledge</option>
+                                <option value="Science">Science</option>
+                                <option value="History">History</option>
+                                <option value="Mathematics">Mathematics</option>
+                            </select>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label text-secondary small fw-bold">TIME LIMIT (MINUTES)</label>
-                            <div class="input-group justify-content-center">
-                                <span class="input-group-text bg-dark border-secondary text-secondary">
-                                    <i class="bi bi-clock"></i>
-                                </span>
-                                <input type="number" name="timeLimit" class="form-control bg-dark text-white border-secondary text-center" 
-                                       style="max-width: 100px;" value="10" min="1" required>
+                            <div class="input-group">
+                                <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-clock"></i></span>
+                                <input type="number" name="timeLimit" class="form-control bg-dark text-white border-secondary" value="10" min="1" required>
                                 <span class="input-group-text bg-dark border-secondary text-secondary">mins</span>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary-custom w-100 py-2">
-                            Next: Add Questions &rarr;
-                        </button>
+                        <button type="submit" class="btn btn-primary-custom w-100 py-2">Next: Add Questions &rarr;</button>
                     </form>
                 </div>
             </div>
         </div>
     
-    <% 
-        // ---------------------------------------------------------
-        // STATE 2: ADD QUESTIONS (Quiz Created)
-        // ---------------------------------------------------------
-        } else { 
+    <% } else { 
+        // SAFETY CHECK: Handle null category to prevent JSP execution errors
+        String displayCategory = (quiz.getCategory() != null) ? quiz.getCategory() : "Uncategorized";
     %>
-
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <span class="text-secondary small">EDITING QUIZ:</span>
                 <h2 class="text-white fw-bold d-flex align-items-center gap-3">
                     <%= quiz.getName() %>
+                    <span class="badge border border-secondary text-secondary fs-6 fw-normal">
+                        <i class="bi bi-tag me-1"></i> <%= displayCategory %> 
+                    </span>
                     <span class="badge border border-secondary text-secondary fs-6 fw-normal">
                         <i class="bi bi-clock me-1"></i> <%= quiz.getTimeLimit() %> mins
                     </span>
@@ -98,11 +106,9 @@
         </div>
 
         <div class="row g-4">
-            
             <div class="col-lg-7">
                 <div class="card bg-dark border-info p-4 shadow-sm">
                     <h5 class="text-info mb-3"><i class="bi bi-plus-circle me-2"></i>Add New Question</h5>
-                    
                     <form method="post" action="${pageContext.request.contextPath}/admin/quiz/builder">
                         <input type="hidden" name="action" value="addQuestion">
                         <input type="hidden" name="quizId" value="<%= quiz.getId() %>">
@@ -113,18 +119,10 @@
                         </div>
 
                         <div class="row g-2 mb-3">
-                            <div class="col-6">
-                                <input type="text" name="optionA" class="form-control bg-dark text-white border-secondary" placeholder="Option A" required>
-                            </div>
-                            <div class="col-6">
-                                <input type="text" name="optionB" class="form-control bg-dark text-white border-secondary" placeholder="Option B" required>
-                            </div>
-                            <div class="col-6">
-                                <input type="text" name="optionC" class="form-control bg-dark text-white border-secondary" placeholder="Option C" required>
-                            </div>
-                            <div class="col-6">
-                                <input type="text" name="optionD" class="form-control bg-dark text-white border-secondary" placeholder="Option D" required>
-                            </div>
+                            <div class="col-6"><input type="text" name="optionA" class="form-control bg-dark text-white border-secondary" placeholder="Option A" required></div>
+                            <div class="col-6"><input type="text" name="optionB" class="form-control bg-dark text-white border-secondary" placeholder="Option B" required></div>
+                            <div class="col-6"><input type="text" name="optionC" class="form-control bg-dark text-white border-secondary" placeholder="Option C" required></div>
+                            <div class="col-6"><input type="text" name="optionD" class="form-control bg-dark text-white border-secondary" placeholder="Option D" required></div>
                         </div>
 
                         <div class="mb-4">
@@ -150,7 +148,7 @@
                 <div class="card bg-dark border-secondary h-100">
                     <div class="card-header border-secondary text-white fw-bold d-flex justify-content-between">
                         <span>Questions Added</span>
-                        <span class="badge bg-secondary"><%= questions != null ? questions.size() : 0 %></span>
+                        <span class="badge bg-secondary"><%= (questions != null) ? questions.size() : 0 %></span>
                     </div>
                     <div class="card-body p-0" style="max-height: 500px; overflow-y: auto;">
                         <% if (questions != null && !questions.isEmpty()) { %>
@@ -176,11 +174,8 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
     <% } %>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

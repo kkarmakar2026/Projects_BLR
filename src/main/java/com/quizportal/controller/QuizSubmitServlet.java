@@ -1,60 +1,82 @@
-// src/main/java/com/quizportal/controller/QuizSubmitServlet.java
 package com.quizportal.controller;
 
-import com.quizportal.dao.AttemptDAO;
 import com.quizportal.dao.QuestionDAO;
-import com.quizportal.dao.QuizDAO;
 import com.quizportal.model.Question;
+import com.quizportal.util.DBConnection;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
-import java.io.IOException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.List;
 
 @WebServlet("/quiz/submit")
 public class QuizSubmitServlet extends HttpServlet {
- private final AttemptDAO attemptDAO = new AttemptDAO();
- private final QuizDAO quizDAO = new QuizDAO();
- // private final QuestionDAO questionDAO = new QuestionDAO(); // Unused, can remove
+    
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        
+        // 1. Session & User Check
+        HttpSession session = request.getSession();
+        Integer userId = (Integer) session.getAttribute("USER_ID");
+        
+        if (userId == null) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
 
- @Override
- protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
-     // ... (Session checks remain the same) ...
-     Integer attemptId = (Integer) req.getSession().getAttribute("ATTEMPT_ID");
-     Integer userId = (Integer) req.getSession().getAttribute("USER_ID");
+        // 2. Retrieve Quiz ID from the hidden form field
+        String quizIdParam = request.getParameter("quizId");
+        if (quizIdParam == null || quizIdParam.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/quizzes");
+            return;
+        }
+        int quizId = Integer.parseInt(quizIdParam);
 
-     if (attemptId == null || userId == null) {
-         resp.sendRedirect(req.getContextPath() + "/login");
-         return;
-     }
-
-     int quizId = Integer.parseInt(req.getParameter("quizId"));
-     List<Question> questions = quizDAO.getQuizQuestions(quizId);
-
-     for (Question q : questions) {
-         // FIX: Changed "q_" to "question_" to match the JSP name attribute
-         String selected = req.getParameter("question_" + q.getId());
-         
-         boolean isCorrect = selected != null && selected.equalsIgnoreCase(q.getCorrectOption());
-         
-         // Check if selected is null (user skipped question)
-         // Ideally, your DB should allow NULLs, or you enforce 'required' in JSP
-         String answerToSave = (selected != null) ? selected : null; 
-         
-         // Note: Ensure your saveAnswer method handles nulls gracefully
-         // If your DB column is NOT NULL, you must ensure the user selects an option
-         if(answerToSave != null) {
-             attemptDAO.saveAnswer(attemptId, q.getId(), answerToSave, isCorrect);
-         }
-     }
-
-     attemptDAO.completeAttempt(attemptId);
-     req.getSession().removeAttribute("ATTEMPT_ID");
-
-     req.setAttribute("attempt", attemptDAO.findById(attemptId));
-     req.setAttribute("questions", questions);
-     req.getRequestDispatcher("/quizResult.jsp").forward(req, resp);
- }
+        // 3. Logic: Calculate Score
+        // We re-fetch the questions to compare user answers against the correct options in DB
+        QuestionDAO qDao = new QuestionDAO(DBConnection.getConnection());
+        List<Question> questions = qDao.getQuestionsByQuizId(quizId);
+        
+        double score = 0;
+        double totalMarks = questions.size(); // Assuming 1 mark per question
+        
+        for (Question q : questions) {
+            // MATCHING THE JSP: The input name is "question_" + id
+            String paramName = "question_" + q.getId();
+            String selectedOption = request.getParameter(paramName);
+            
+            // Check correctness
+            if (selectedOption != null && selectedOption.equalsIgnoreCase(q.getCorrectOption())) {
+                score++;
+            }
+        }
+        
+        // 4. Logic: Save Attempt to Database
+        try (Connection con = DBConnection.getConnection()) {
+            // We use the 'attempts' table we created earlier
+            String sql = "INSERT INTO attempts (quiz_id, user_id, score, total_marks, completed_at) VALUES (?, ?, ?, ?, NOW())";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, quizId);
+            ps.setInt(2, userId);
+            ps.setDouble(3, score);
+            ps.setDouble(4, totalMarks);
+            
+            ps.executeUpdate();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Optional: Handle database error
+        }
+        
+        // 5. REDIRECT TO LEADERBOARD
+        // This is the specific fix you requested.
+        response.sendRedirect(request.getContextPath() + "/leaderboard?quizId=" + quizId);
+    }
 }

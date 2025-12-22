@@ -22,7 +22,7 @@ public class QuizBuilderServlet extends HttpServlet {
         // 1. Check Admin Session
         Integer adminId = (Integer) req.getSession().getAttribute("ADMIN_ID");
         if (adminId == null) {
-            resp.sendRedirect(req.getContextPath() + "/admin/login");
+            resp.sendRedirect(req.getSession().getServletContext().getContextPath() + "/admin/login");
             return;
         }
 
@@ -30,12 +30,16 @@ public class QuizBuilderServlet extends HttpServlet {
         String quizIdParam = req.getParameter("quizId");
         
         if (quizIdParam != null) {
-            int quizId = Integer.parseInt(quizIdParam);
-            Quiz quiz = quizDAO.findById(quizId);
-            List<Question> questions = quizDAO.getQuizQuestions(quizId);
-            
-            req.setAttribute("quiz", quiz);
-            req.setAttribute("questions", questions);
+            try {
+                int quizId = Integer.parseInt(quizIdParam);
+                Quiz quiz = quizDAO.findById(quizId);
+                List<Question> questions = quizDAO.getQuizQuestions(quizId);
+                
+                req.setAttribute("quiz", quiz);
+                req.setAttribute("questions", questions);
+            } catch (NumberFormatException e) {
+                // Handle invalid quizId parameter if necessary
+            }
         }
 
         // 3. Load the JSP
@@ -46,7 +50,7 @@ public class QuizBuilderServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Integer adminId = (Integer) req.getSession().getAttribute("ADMIN_ID");
         if (adminId == null) {
-            resp.sendRedirect(req.getContextPath() + "/admin/login");
+            resp.sendRedirect(req.getSession().getServletContext().getContextPath() + "/admin/login");
             return;
         }
 
@@ -56,53 +60,62 @@ public class QuizBuilderServlet extends HttpServlet {
             // STEP 1: Create the Quiz Shell
             String title = req.getParameter("quizTitle");
             
-            // --- NEW CODE: Handle Time Limit ---
+            // --- NEW: Capture Category ---
+            String category = req.getParameter("category"); 
+
+            // --- Handle Time Limit ---
             String timeParam = req.getParameter("timeLimit");
             int timeLimit = 10; // Default
             if (timeParam != null && !timeParam.trim().isEmpty()) {
                 try {
                     timeLimit = Integer.parseInt(timeParam);
                 } catch (NumberFormatException e) {
-                    timeLimit = 10; // Fallback if parsing fails
+                    timeLimit = 10; 
                 }
             }
 
-            // Call updated DAO method with timeLimit
-            int quizId = quizDAO.createQuiz(title, adminId, timeLimit);
+            // FIX: Call updated DAO method with 4 arguments: (name, adminId, timeLimit, category)
+            int quizId = quizDAO.createQuiz(title, adminId, timeLimit, category);
             
             // Redirect to same page with quizId to start adding questions
             resp.sendRedirect(req.getContextPath() + "/admin/quiz/builder?quizId=" + quizId);
         
         } else if ("addQuestion".equals(action)) {
             // STEP 2: Create Question & Link to Quiz
-            int quizId = Integer.parseInt(req.getParameter("quizId"));
-            
-            // Create Question Object
-            Question q = new Question();
-            q.setText(req.getParameter("text"));
-            q.setOptionA(req.getParameter("optionA"));
-            q.setOptionB(req.getParameter("optionB"));
-            q.setOptionC(req.getParameter("optionC"));
-            q.setOptionD(req.getParameter("optionD"));
-            q.setCorrectOption(req.getParameter("correctOption"));
-            
-            // Save Question to DB
-            int questionId = questionDAO.create(q, adminId);
-            
-            // Calculate Position (Simple logic: count existing + 1)
-            int position = quizDAO.getQuizQuestions(quizId).size() + 1;
-            
-            // Link to Quiz
-            quizDAO.addQuestionToQuiz(quizId, questionId, position);
-            
-            // Redirect back to builder to show the new question
-            resp.sendRedirect(req.getContextPath() + "/admin/quiz/builder?quizId=" + quizId + "&msg=Question+Added");
+            String quizIdStr = req.getParameter("quizId");
+            if (quizIdStr != null) {
+                int quizId = Integer.parseInt(quizIdStr);
+                
+                // Create Question Object
+                Question q = new Question();
+                q.setText(req.getParameter("text"));
+                q.setOptionA(req.getParameter("optionA"));
+                q.setOptionB(req.getParameter("optionB"));
+                q.setOptionC(req.getParameter("optionC"));
+                q.setOptionD(req.getParameter("optionD"));
+                q.setCorrectOption(req.getParameter("correctOption"));
+                
+                // Save Question to DB
+                int questionId = questionDAO.create(q, adminId);
+                
+                // Calculate Position (count existing + 1)
+                int position = quizDAO.getQuizQuestions(quizId).size() + 1;
+                
+                // Link to Quiz
+                quizDAO.addQuestionToQuiz(quizId, questionId, position);
+                
+                // Redirect back to builder
+                resp.sendRedirect(req.getContextPath() + "/admin/quiz/builder?quizId=" + quizId + "&msg=Question+Added");
+            }
             
         } else if ("publish".equals(action)) {
             // STEP 3: Finalize
-            int quizId = Integer.parseInt(req.getParameter("quizId"));
-            quizDAO.publishQuiz(quizId);
-            resp.sendRedirect(req.getContextPath() + "/admin/quizzes/manage?msg=Quiz+Published");
+            String quizIdStr = req.getParameter("quizId");
+            if (quizIdStr != null) {
+                int quizId = Integer.parseInt(quizIdStr);
+                quizDAO.publishQuiz(quizId);
+                resp.sendRedirect(req.getContextPath() + "/admin/quizzes/manage?msg=Quiz+Published");
+            }
         }
     }
 }
